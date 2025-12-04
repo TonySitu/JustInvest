@@ -6,7 +6,7 @@ Main entry point for the complete system
 import sys
 import os
 
-from Problem2 import PasswordFileManager
+from Problem2c import PasswordFileManager
 from Problem3b import PasswordChecker, create_weak_passwords_file
 from Problem4 import LoginSystem, initialize_sample_users
 

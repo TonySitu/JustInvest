@@ -9,8 +9,8 @@ from datetime import datetime
 
 # Import from other problem files
 sys.path.insert(0, os.path.dirname(__file__))
-from Problem1 import AccessControlManager, Role, Permission
-from Problem2 import PasswordFileManager
+from Problem1c import AccessControlManager, Role, Permission
+from Problem2c import PasswordFileManager
 
 
 class LoginSystem:
@@ -193,10 +193,10 @@ class LoginSystem:
                     authorized, msg = self.access_control.authorize_operation(role, selected_perm)
 
                     if authorized:
-                        print(f"\n✓ {selected_perm.value}")
+                        print(f"\n{selected_perm.value}")
                         print("  (Operation successful - prototype mode)")
                     else:
-                        print(f"\n✗ Access Denied: {msg}")
+                        print(f"\nAccess Denied: {msg}")
                 else:
                     print("Invalid choice. Please try again.")
             except ValueError:
@@ -327,7 +327,7 @@ def test_login_system():
             actual_count = len(permissions)
 
             test_passed = (actual_count == expected_perm_count)
-            status = "✓ PASS" if test_passed else "✗ FAIL"
+            status = " PASS" if test_passed else "FAIL"
 
             if test_passed:
                 passed += 1
@@ -341,19 +341,19 @@ def test_login_system():
                 print(f"        - {perm.value}")
         else:
             failed += 1
-            print(f"✗ FAIL | Could not authenticate {username}")
+            print(f"FAIL | Could not authenticate {username}")
         print()
 
     print(f"Summary: {passed} passed, {failed} failed out of {passed + failed} tests\n")
 
     print("=" * 70)
     print("Login System Components Verified:")
-    print("  ✓ User authentication via password file")
-    print("  ✓ Role-based permission retrieval")
-    print("  ✓ Time-based access control (Teller)")
-    print("  ✓ Invalid credential rejection")
-    print("  ✓ Non-existent user handling")
-    print("  ✓ Complete permission display")
+    print("   User authentication via password file")
+    print("   Role-based permission retrieval")
+    print("   Time-based access control (Teller)")
+    print("   Invalid credential rejection")
+    print("   Non-existent user handling")
+    print("   Complete permission display")
     print("=" * 70)
 
 

@@ -179,7 +179,7 @@ def test_password_file():
     print("Test Category: Duplicate User Prevention\n")
     duplicate_test = pfm.add_user("sasha.kim", "AnotherPass1!", "Client")
     test_passed = not duplicate_test
-    status = "✓ PASS" if test_passed else "✗ FAIL"
+    status = "PASS" if test_passed else "FAIL"
 
     if test_passed:
         passed += 1
@@ -196,7 +196,7 @@ def test_password_file():
     for username, password, role in test_users:
         success, user_data = pfm.verify_user(username, password)
         test_passed = success and user_data and user_data['role'] == role
-        status = "✓ PASS" if test_passed else "✗ FAIL"
+        status = "PASS" if test_passed else "FAIL"
 
         if test_passed:
             passed += 1
@@ -221,7 +221,7 @@ def test_password_file():
     for username, password, description in wrong_tests:
         success, _ = pfm.verify_user(username, password)
         test_passed = not success
-        status = "✓ PASS" if test_passed else "✗ FAIL"
+        status = "PASS" if test_passed else "FAIL"
 
         if test_passed:
             passed += 1
@@ -251,7 +251,7 @@ def test_password_file():
 
             record_valid = field_count_ok and salt_length_ok and hash_length_ok
             test_passed = record_valid
-            status = "✓ PASS" if test_passed else "✗ FAIL"
+            status = "PASS" if test_passed else "FAIL"
 
             if test_passed:
                 passed += 1

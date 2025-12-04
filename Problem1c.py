@@ -157,7 +157,7 @@ def test_access_control():
         time_desc = "outside business hours"
 
     time_passed = (time_check == expected_time_result)
-    status = "✓ PASS" if time_passed else "✗ FAIL"
+    status = "PASS" if time_passed else "FAIL"
 
     if time_passed:
         passed += 1

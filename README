@@ -1,0 +1,260 @@
+# justInvest User Authentication and Access Control System
+
+## System Requirements
+- **Operating System:** Ubuntu 24.04.3 LTS (Noble Numbat) or compatible
+- **Python Version:** Python 3.12.3
+- **Dependencies:** Standard library only (no external packages required)
+
+## File Structure
+```
+justinvest-system/
+├── Problem1c.py          # Access Control Mechanism (RBAC)
+├── Problem2c.py          # Password File Management
+├── Problem3a.py          # Enrollment System Component Tests
+├── Problem3b.py          # Proactive Password Checker
+├── Problem4.py           # Login System and Access Control Display
+├── main.py               # Main system entry point (includes EnrollmentSystem)
+├── passwd.txt            # Password file (created at runtime)
+├── weak_passwords.txt    # List of prohibited weak passwords (created at runtime)
+└── README.md             # This file
+```
+
+**Note:** The `EnrollmentSystem` class is implemented in `main.py` to avoid circular import issues. Problem3a.py contains component tests that demonstrate enrollment functionality.
+
+## Installation and Setup
+
+### 1. Extract Files
+```bash
+unzip justinvest-system.zip
+cd justinvest-system
+```
+
+### 2. Verify Python Version
+```bash
+python3 --version
+# Should output: Python 3.12.3 or compatible
+```
+
+### 3. No Additional Dependencies Required
+All code uses Python standard library only.
+
+## Running the System
+
+### Option 1: Run Complete System (Recommended)
+```bash
+python3 main.py
+```
+This launches the main menu where you can:
+1. Enroll new users
+2. Login to the system
+3. Initialize sample users for testing
+4. Exit
+
+### Option 2: Run Individual Components
+
+#### Test Access Control (Problem 1)
+```bash
+python3 Problem1c.py
+```
+
+#### Test Password File Management (Problem 2)
+```bash
+python3 Problem2c.py
+```
+
+#### Test Password Checker (Problem 3b)
+```bash
+python3 Problem3b.py
+```
+
+#### Test Enrollment System (Problem 3a)
+```bash
+python3 Problem3a.py
+```
+
+#### Test Login System (Problem 4)
+```bash
+python3 Problem4.py
+```
+
+## Sample Users for Testing
+
+After initializing sample users (Option 3 in main menu), you can login with:
+
+| Username | Password | Role |
+|----------|----------|------|
+| sasha.kim | Client@123 | Client |
+| emery.blake | Client@456 | Client |
+| noor.abbasi | Premium#789 | Premium Client |
+| zuri.adebayo | Premium#012 | Premium Client |
+| mikael.chen | Advisor$345 | Financial Advisor |
+| jordan.riley | Advisor$678 | Financial Advisor |
+| ellis.nakamura | Planner&901 | Financial Planner |
+| harper.diaz | Planner&234 | Financial Planner |
+| alex.hayes | Teller*567 | Teller |
+| adair.patel | Teller*890 | Teller |
+
+## Password Policy Requirements
+
+When enrolling new users, passwords must meet ALL of the following criteria:
+- **Length:** 8-12 characters
+- **Uppercase:** At least one uppercase letter (A-Z)
+- **Lowercase:** At least one lowercase letter (a-z)
+- **Digit:** At least one numerical digit (0-9)
+- **Special Character:** At least one from: !, @, #, $, %, *, &
+- **Not Weak:** Must not appear in the weak passwords list
+- **Not Username:** Must not match the username
+
+**Valid Password Examples:**
+- `SecureP@ss1`
+- `MyP@ssw0rd`
+- `Valid*123`
+
+**Invalid Password Examples:**
+- `short` (too short)
+- `Password1!` (common weak password)
+- `nouppercase1!` (missing uppercase)
+- `NOLOWERCASE1!` (missing lowercase)
+
+## Access Control Policy
+
+### Role Permissions Matrix
+
+| Operation | Client | Premium Client | Financial Advisor | Financial Planner | Teller |
+|-----------|--------|----------------|-------------------|-------------------|--------|
+| View account balance | ✓ | ✓ | ✓ | ✓ | ✓ |
+| View investment portfolio | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Modify investment portfolio | ✗ | ✓ | ✓ | ✓ | ✗ |
+| View Financial Advisor contact | ✓ | ✓ | ✗ | ✗ | ✗ |
+| View Financial Planner contact | ✗ | ✓ | ✗ | ✗ | ✗ |
+| View money market instruments | ✗ | ✗ | ✗ | ✓ | ✗ |
+| View private consumer instruments | ✗ | ✗ | ✓ | ✓ | ✗ |
+
+### Special Restrictions
+- **Tellers:** Can only access the system during business hours (9:00 AM - 5:00 PM)
+
+## Security Features
+
+### 1. Password Hashing
+- **Algorithm:** PBKDF2-HMAC-SHA256
+- **Iterations:** 100,000
+- **Salt Length:** 16 bytes (128 bits)
+- **Hash Length:** 32 bytes (256 bits)
+- **Salt Generation:** Cryptographically secure random (secrets module)
+
+### 2. Access Control
+- **Model:** Role-Based Access Control (RBAC)
+- **Enforcement:** Centralized through AccessControlManager
+- **Time-Based:** Automatic enforcement for Teller role
+
+### 3. Password Storage
+- **Format:** username:salt:hash:role
+- **Security:** Salted and hashed, never stored in plaintext
+- **Comparison:** Constant-time comparison to prevent timing attacks
+
+## Design Decisions
+
+### Problem 1: Access Control Model
+**Choice:** RBAC (Role-Based Access Control)
+
+**Justification:**
+- justInvest has clearly defined roles with specific permissions
+- Easy to manage when employees change roles
+- No code changes needed for role/permission updates
+- Scalable for organization growth
+- Industry standard for enterprise systems
+
+### Problem 2: Hash Function
+**Choice:** PBKDF2-HMAC-SHA256
+
+**Justification:**
+- Available in Python standard library (no dependencies)
+- NIST approved and widely adopted
+- Configurable iteration count for future-proofing
+- Resistant to rainbow table attacks with proper salting
+- No known vulnerabilities
+- Balanced performance and security
+
+**Parameters:**
+- 100,000 iterations (NIST recommendation for PBKDF2)
+- 16-byte random salt per password
+- 32-byte output hash
+
+### Problem 3: Password Policy
+**Implementation:**
+- Regex-based validation for character requirements
+- File-based weak password list for flexibility
+- Case-insensitive comparison for weak passwords
+- Extensible design for future policy changes
+
+## Testing Coverage
+
+### Problem 1 Tests (Access Control)
+- ✓ Client permissions (view only)
+- ✓ Premium Client permissions (includes modify)
+- ✓ Financial Advisor permissions (includes private consumer)
+- ✓ Financial Planner permissions (includes money market)
+- ✓ Teller time restrictions
+- ✓ Complete permission sets for all roles
+
+### Problem 2 Tests (Password File)
+- ✓ Add new users
+- ✓ Prevent duplicate users
+- ✓ Verify correct passwords
+- ✓ Reject incorrect passwords
+- ✓ Reject non-existent users
+- ✓ Password file structure validation
+
+### Problem 3 Tests (Password Checker)
+- ✓ Valid passwords (multiple cases)
+- ✓ Length violations (too short/long)
+- ✓ Missing uppercase letter
+- ✓ Missing lowercase letter
+- ✓ Missing numerical digit
+- ✓ Missing special character
+- ✓ Wrong special character
+- ✓ Common weak password rejection
+- ✓ Username matching rejection
+- ✓ Multiple simultaneous violations
+
+### Problem 4 Tests (Login System)
+- ✓ Successful authentication
+- ✓ Correct permission display
+- ✓ Invalid credential rejection
+- ✓ Non-existent user handling
+- ✓ Time-based access control for Tellers
+- ✓ Role-based operation authorization
+
+## Troubleshooting
+
+### "Module not found" errors
+Ensure all Python files are in the same directory and you're running from that directory.
+
+### Password file issues
+Delete `passwd.txt` and reinitialize sample users or enroll new users.
+
+### Time restriction testing for Tellers
+The system uses system time. To test outside business hours (9 AM - 5 PM), you can temporarily modify the time check in Problem1c.py or wait until outside business hours.
+
+## Development Notes
+
+### Code Quality
+- PEP 8 compliant
+- Comprehensive comments
+- No hard-coded values (configuration-based)
+- Error handling throughout
+- Input validation on all user inputs
+
+### Security Best Practices
+- Passwords never stored in plaintext
+- Constant-time hash comparison
+- Secure random number generation
+- Input sanitization
+- Principle of least privilege in access control
+
+## Contact and Support
+
+For questions or issues, please refer to the PDF report for detailed design documentation and test case descriptions.
+
+---
+**End of README**

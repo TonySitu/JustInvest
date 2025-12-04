@@ -8,7 +8,7 @@ import os
 
 # Import from other problem files
 sys.path.insert(0, os.path.dirname(__file__))
-from Problem2 import PasswordFileManager
+from Problem2c import PasswordFileManager
 from Problem3b import PasswordChecker, create_weak_passwords_file
 
 
@@ -80,7 +80,7 @@ def test_enrollment():
             # Then create user
             success = pfm.add_user(username, password, role)
             test_passed = success
-            status = "✓ PASS" if test_passed else "✗ FAIL"
+            status = "PASS" if test_passed else "FAIL"
 
             if test_passed:
                 passed += 1
@@ -91,7 +91,7 @@ def test_enrollment():
             print(f"      Expected: Created, Got: {'Created' if success else 'Failed'}")
         else:
             failed += 1
-            print(f"✗ FAIL | {username}: Password validation failed")
+            print(f"FAIL | {username}: Password validation failed")
             print(f"      Errors: {', '.join(errors)}")
         print()
 
@@ -99,10 +99,10 @@ def test_enrollment():
 
     print("=" * 70)
     print("Enrollment Workflow Components Verified:")
-    print("  ✓ Password validation against all 7 policy rules")
-    print("  ✓ User creation in password file")
-    print("  ✓ Role assignment")
-    print("  ✓ Error message clarity")
+    print("   Password validation against all 7 policy rules")
+    print("   User creation in password file")
+    print("   Role assignment")
+    print("   Error message clarity")
     print("\nNote: Full interactive enrollment available via main.py")
     print("Run: python3 main.py → Select option 1 (Enroll New User)")
     print("=" * 70)
