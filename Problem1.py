@@ -185,7 +185,7 @@ def test_access_control():
         actual_count = len(permissions)
         count_passed = (actual_count == expected_count)
 
-        status = "✓ PASS" if count_passed else "✗ FAIL"
+        status = "PASS" if count_passed else "FAIL"
 
         if count_passed:
             passed += 1
