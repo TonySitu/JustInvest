@@ -6,12 +6,9 @@ Main entry point for the complete system
 import sys
 import os
 
-# Import all components
-from Problem1 import AccessControlManager, Role, Permission
 from Problem2 import PasswordFileManager
 from Problem3b import PasswordChecker, create_weak_passwords_file
 from Problem4 import LoginSystem, initialize_sample_users
-
 
 class EnrollmentSystem:
     """Handles user enrollment with password validation"""
@@ -138,7 +135,6 @@ class EnrollmentSystem:
             print("\nEnrollment failed: Unable to create account")
             return False
 
-
 class JustInvestSystem:
     """Main system orchestrator"""
 
@@ -205,12 +201,10 @@ class JustInvestSystem:
                 print("\nInvalid choice. Please try again.")
                 input("\nPress Enter to continue...")
 
-
 def main():
     """Entry point"""
     system = JustInvestSystem()
     system.run()
-
 
 if __name__ == "__main__":
     main()

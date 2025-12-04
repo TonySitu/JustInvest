@@ -3,28 +3,28 @@ import re
 import os
 
 
-def get_password_requirements():
-    """Return a formatted string of password requirements"""
-    requirements = """
-Password Requirements:
-- Length: 8-12 characters
-- Must include at least:
-* One uppercase letter (A-Z)
-* One lowercase letter (a-z)
-* One numerical digit (0-9)
-* One special character (!, @, #, $, %, *, &)
-- Must not be a common weak password
-- Must not match your username
-    """
-    return requirements.strip()
-
-
 class PasswordChecker:
     """Password checker implementing justInvest password policy"""
 
     def __init__(self, weak_passwords_file="weak_passwords.txt"):
         self.weak_passwords_file = weak_passwords_file
         self.weak_passwords = self._load_weak_passwords()
+
+    @staticmethod
+    def get_password_requirements():
+        """Return a formatted string of password requirements"""
+        requirements = """
+            Password Requirements:
+            - Length: 8-12 characters
+            - Must include at least:
+            * One uppercase letter (A-Z)
+            * One lowercase letter (a-z)
+            * One numerical digit (0-9)
+            * One special character (!, @, #, $, %, *, &)
+            - Must not be a common weak password
+            - Must not match your username
+        """
+        return requirements.strip()
 
     def _load_weak_passwords(self):
         """Load list of weak passwords from file"""
@@ -177,7 +177,7 @@ def test_password_checker():
 
     # Display requirements
     print("=" * 60)
-    print(get_password_requirements())
+    print(checker.get_password_requirements())
     print("=" * 60)
 
 

@@ -97,62 +97,107 @@ class AccessControlManager:
 # Test cases for Problem 1c
 def test_access_control():
     """Test the access control mechanism"""
+    print("Testing Access Control Mechanism\n")
+
     acm = AccessControlManager()
 
-    print("=== Testing Access Control Mechanism ===\n")
+    # Test cases with expected results
+    test_cases = [
+        # (role, permission_to_check, expected_result, description)
+        (Role.CLIENT, Permission.VIEW_ACCOUNT_BALANCE, True, "Client can view account balance"),
+        (Role.CLIENT, Permission.VIEW_INVESTMENT_PORTFOLIO, True, "Client can view portfolio"),
+        (Role.CLIENT, Permission.MODIFY_INVESTMENT_PORTFOLIO, False, "Client cannot modify portfolio"),
+        (Role.CLIENT, Permission.VIEW_FA_CONTACT, True, "Client can view FA contact"),
+        (Role.CLIENT, Permission.VIEW_FP_CONTACT, False, "Client cannot view FP contact"),
 
-    # Test Case 1: Client permissions
-    print("Test Case 1: Client Access")
-    role = Role.CLIENT
-    print(f"Role: {role.value}")
-    print(f"  - View account balance: {acm.has_permission(role, Permission.VIEW_ACCOUNT_BALANCE)}")
-    print(f"  - View portfolio: {acm.has_permission(role, Permission.VIEW_INVESTMENT_PORTFOLIO)}")
-    print(f"  - Modify portfolio: {acm.has_permission(role, Permission.MODIFY_INVESTMENT_PORTFOLIO)}")
-    print(f"  - View FA contact: {acm.has_permission(role, Permission.VIEW_FA_CONTACT)}")
-    print()
+        (Role.PREMIUM_CLIENT, Permission.MODIFY_INVESTMENT_PORTFOLIO, True, "Premium Client can modify portfolio"),
+        (Role.PREMIUM_CLIENT, Permission.VIEW_FP_CONTACT, True, "Premium Client can view FP contact"),
 
-    # Test Case 2: Premium Client permissions
-    print("Test Case 2: Premium Client Access")
-    role = Role.PREMIUM_CLIENT
-    print(f"Role: {role.value}")
-    print(f"  - Modify portfolio: {acm.has_permission(role, Permission.MODIFY_INVESTMENT_PORTFOLIO)}")
-    print(f"  - View FP contact: {acm.has_permission(role, Permission.VIEW_FP_CONTACT)}")
-    print()
+        (Role.FINANCIAL_ADVISOR, Permission.VIEW_PRIVATE_CONSUMER, True, "FA can view private consumer"),
+        (Role.FINANCIAL_ADVISOR, Permission.VIEW_MONEY_MARKET, False, "FA cannot view money market"),
+        (Role.FINANCIAL_ADVISOR, Permission.MODIFY_INVESTMENT_PORTFOLIO, True, "FA can modify portfolio"),
 
-    # Test Case 3: Financial Advisor permissions
-    print("Test Case 3: Financial Advisor Access")
-    role = Role.FINANCIAL_ADVISOR
-    print(f"Role: {role.value}")
-    print(f"  - View private consumer: {acm.has_permission(role, Permission.VIEW_PRIVATE_CONSUMER)}")
-    print(f"  - View money market: {acm.has_permission(role, Permission.VIEW_MONEY_MARKET)}")
-    print(f"  - Modify portfolio: {acm.has_permission(role, Permission.MODIFY_INVESTMENT_PORTFOLIO)}")
-    print()
+        (Role.FINANCIAL_PLANNER, Permission.VIEW_MONEY_MARKET, True, "FP can view money market"),
+        (Role.FINANCIAL_PLANNER, Permission.VIEW_PRIVATE_CONSUMER, True, "FP can view private consumer"),
 
-    # Test Case 4: Financial Planner permissions
-    print("Test Case 4: Financial Planner Access")
-    role = Role.FINANCIAL_PLANNER
-    print(f"Role: {role.value}")
-    print(f"  - View money market: {acm.has_permission(role, Permission.VIEW_MONEY_MARKET)}")
-    print(f"  - View private consumer: {acm.has_permission(role, Permission.VIEW_PRIVATE_CONSUMER)}")
-    print()
+        (Role.TELLER, Permission.VIEW_ACCOUNT_BALANCE, True, "Teller can view balance"),
+        (Role.TELLER, Permission.MODIFY_INVESTMENT_PORTFOLIO, False, "Teller cannot modify portfolio"),
+    ]
 
-    # Test Case 5: Teller time restrictions
-    print("Test Case 5: Teller Time Restrictions")
-    role = Role.TELLER
-    print(f"Role: {role.value}")
-    time_check, msg = acm.check_time_restriction(role)
-    print(f"  - Current time access: {time_check}")
-    print(f"  - Message: {msg}")
-    print()
+    print("Test Results:\n")
+    passed = 0
+    failed = 0
 
-    # Test Case 6: All permissions for each role
-    print("Test Case 6: Complete Permission Sets")
-    for role in Role:
-        permissions = acm.get_permissions(role)
-        print(f"{role.value}:")
-        for perm in permissions:
-            print(f"  - {perm.value}")
+    for role, permission, expected, description in test_cases:
+        has_perm = acm.has_permission(role, permission)
+        test_passed = (has_perm == expected)
+
+        status = "PASS" if test_passed else "FAIL"
+
+        if test_passed:
+            passed += 1
+        else:
+            failed += 1
+
+        print(f"{status} | {description}")
+        print(f"      Role: {role.value}, Permission: {permission.value}")
+        print(f"      Expected: {expected}, Got: {has_perm}")
         print()
+
+    # Test Teller time restrictions
+    print("Time Restriction Tests:\n")
+    time_check, msg = acm.check_time_restriction(Role.TELLER)
+    current_time = __import__('datetime').datetime.now().hour
+
+    if 9 <= current_time < 17:
+        expected_time_result = True
+        time_desc = "within business hours"
+    else:
+        expected_time_result = False
+        time_desc = "outside business hours"
+
+    time_passed = (time_check == expected_time_result)
+    status = "✓ PASS" if time_passed else "✗ FAIL"
+
+    if time_passed:
+        passed += 1
+    else:
+        failed += 1
+
+    print(f"{status} | Teller time restriction (currently {time_desc})")
+    print(f"      Current hour: {current_time}")
+    print(f"      Expected: {expected_time_result}, Got: {time_check}")
+    print(f"      Message: {msg}")
+    print()
+
+    # Test complete permission sets
+    print("Complete Permission Sets:\n")
+    expected_counts = {
+        Role.CLIENT: 3,
+        Role.PREMIUM_CLIENT: 5,
+        Role.FINANCIAL_ADVISOR: 4,
+        Role.FINANCIAL_PLANNER: 5,
+        Role.TELLER: 2
+    }
+
+    for role, expected_count in expected_counts.items():
+        permissions = acm.get_permissions(role)
+        actual_count = len(permissions)
+        count_passed = (actual_count == expected_count)
+
+        status = "✓ PASS" if count_passed else "✗ FAIL"
+
+        if count_passed:
+            passed += 1
+        else:
+            failed += 1
+
+        print(f"{status} | {role.value} permission count")
+        print(f"Expected: {expected_count}, Got: {actual_count}")
+        print(f"Permissions: {[p.value for p in permissions]}")
+        print()
+
+    print(f"Summary: {passed} passed, {failed} failed out of {passed + failed} tests\n")
 
 
 if __name__ == "__main__":

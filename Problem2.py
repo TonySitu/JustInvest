@@ -146,8 +146,7 @@ def test_password_file():
     if os.path.exists("test_passwd.txt"):
         os.remove("test_passwd.txt")
 
-    # Test Case 1: Add new users
-    print("Test Case 1: Adding New Users")
+    # Test data
     test_users = [
         ("sasha.kim", "SecurePass1!", "Client"),
         ("emery.blake", "MyP@ssw0rd", "Client"),
@@ -155,55 +154,123 @@ def test_password_file():
         ("mikael.chen", "Advisor$99", "Financial Advisor"),
     ]
 
+    print("Test Results:\n")
+    passed = 0
+    failed = 0
+
+    # Test Case 1: Add new users
+    print("Test Category: Adding New Users\n")
     for username, password, role in test_users:
         success = pfm.add_user(username, password, role)
-        print(f"  {username}: {'Success' if success else 'Failed'}")
-    print()
+        test_passed = success
+        status = "PASS" if test_passed else "FAIL"
+
+        if test_passed:
+            passed += 1
+        else:
+            failed += 1
+
+        print(f"{status} | Add user '{username}'")
+        print(f"      Role: {role}")
+        print(f"      Expected: Success, Got: {'Success' if success else 'Failed'}")
+        print()
 
     # Test Case 2: Prevent duplicate users
-    print("Test Case 2: Duplicate User Prevention")
-    pfm.add_user("sasha.kim", "AnotherPass1!", "Client")
+    print("Test Category: Duplicate User Prevention\n")
+    duplicate_test = pfm.add_user("sasha.kim", "AnotherPass1!", "Client")
+    test_passed = not duplicate_test
+    status = "✓ PASS" if test_passed else "✗ FAIL"
+
+    if test_passed:
+        passed += 1
+    else:
+        failed += 1
+
+    print(f"{status} | Duplicate username rejection")
+    print(f"      Attempted: sasha.kim (already exists)")
+    print(f"      Expected: Rejected, Got: {'Rejected' if not duplicate_test else 'Accepted (ERROR)'}")
     print()
 
     # Test Case 3: Verify correct passwords
-    print("Test Case 3: Correct Password Verification")
-    for username, password, _ in test_users:
+    print("Test Category: Correct Password Verification\n")
+    for username, password, role in test_users:
         success, user_data = pfm.verify_user(username, password)
-        print(f"  {username}: {'Verified' if success else 'Failed'}")
-        if success:
-            print(f"    Role: {user_data['role']}")
-    print()
+        test_passed = success and user_data and user_data['role'] == role
+        status = "✓ PASS" if test_passed else "✗ FAIL"
+
+        if test_passed:
+            passed += 1
+        else:
+            failed += 1
+
+        print(f"{status} | Verify user '{username}'")
+        print(f"      Expected: Success with role '{role}'")
+        print(f"      Got: {'Success' if success else 'Failed'}")
+        if success and user_data:
+            print(f"      Role returned: {user_data['role']}")
+        print()
 
     # Test Case 4: Reject incorrect passwords
-    print("Test Case 4: Incorrect Password Rejection")
+    print("Test Category: Incorrect Password Rejection\n")
     wrong_tests = [
-        ("sasha.kim", "WrongPassword1!"),
-        ("mikael.chen", "incorrect"),
-        ("nonexistent.user", "SomePass1!")
+        ("sasha.kim", "WrongPassword1!", "Existing user, wrong password"),
+        ("mikael.chen", "incorrect", "Existing user, wrong password"),
+        ("nonexistent.user", "SomePass1!", "Non-existent user"),
     ]
 
-    for username, password in wrong_tests:
+    for username, password, description in wrong_tests:
         success, _ = pfm.verify_user(username, password)
-        print(f"  {username} with wrong password: {'ERROR - Accepted!' if success else 'Correctly rejected'}")
-    print()
+        test_passed = not success
+        status = "✓ PASS" if test_passed else "✗ FAIL"
 
-    # Test Case 5: Display password file structure
-    print("Test Case 5: Password File Structure")
-    print("Example records from passwd.txt:")
+        if test_passed:
+            passed += 1
+        else:
+            failed += 1
+
+        print(f"{status} | {description}")
+        print(f"      Username: {username}")
+        print(f"      Expected: Rejected, Got: {'Rejected' if not success else 'Accepted (ERROR)'}")
+        print()
+
+    # Test Case 5: Password file structure validation
+    print("Test Category: Password File Structure\n")
     with open("test_passwd.txt", 'r') as f:
-        lines = f.readlines()[:2]  # Show first 2 records
-        for i, line in enumerate(lines, 1):
-            line_data = line.strip().split(':')
-            print(f"\nRecord {i}:")
-            print(f"  Username: {line_data[0]}")
-            print(f"  Salt: {line_data[1][:16]}...")
-            print(f"  Hash: {line_data[2][:16]}...")
-            print(f"  Role: {line_data[3]}")
-    print()
+        lines = f.readlines()
+        structure_valid = True
+
+        for i, line in enumerate(lines[:2], 1):
+            parts = line.strip().split(':')
+
+            # Check field count
+            field_count_ok = len(parts) == 4
+            # Check salt length (32 hex chars = 16 bytes)
+            salt_length_ok = len(parts[1]) == 32
+            # Check hash length (64 hex chars = 32 bytes)
+            hash_length_ok = len(parts[2]) == 64
+
+            record_valid = field_count_ok and salt_length_ok and hash_length_ok
+            test_passed = record_valid
+            status = "✓ PASS" if test_passed else "✗ FAIL"
+
+            if test_passed:
+                passed += 1
+            else:
+                failed += 1
+
+            print(f"{status} | Record {i} structure validation")
+            print(f"      Username: {parts[0]}")
+            print(f"      Fields: {len(parts)} (expected: 4)")
+            print(f"      Salt length: {len(parts[1])} chars (expected: 32)")
+            print(f"      Hash length: {len(parts[2])} chars (expected: 64)")
+            print(f"      Role: {parts[3]}")
+            print()
+
+    print(f"Summary: {passed} passed, {failed} failed out of {passed + failed} tests\n")
 
     # Clean up test file
     os.remove("test_passwd.txt")
-    print("Test completed. Test file cleaned up.")
+    print("Test file cleaned up.")
 
 
 if __name__ == "__main__":

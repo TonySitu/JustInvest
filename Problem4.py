@@ -12,7 +12,6 @@ sys.path.insert(0, os.path.dirname(__file__))
 from Problem1 import AccessControlManager, Role, Permission
 from Problem2 import PasswordFileManager
 
-
 class LoginSystem:
     """Handles user login and displays access privileges"""
 
@@ -202,7 +201,6 @@ class LoginSystem:
             except ValueError:
                 print("Invalid input. Please enter a number.")
 
-
 def initialize_sample_users():
     """Initialize password file with sample users for testing"""
     pfm = PasswordFileManager()
@@ -228,46 +226,113 @@ def initialize_sample_users():
 
 def test_login_system():
     """Test the login system with various scenarios"""
-    print("=== Testing Login System ===\n")
+    print("Testing Login System\n")
 
-    # Initialize sample users
+    # Initialize sample users if they don't exist
     if not os.path.exists("passwd.txt"):
+        print("Initializing sample users for testing...")
         initialize_sample_users()
+        print()
 
     login_system = LoginSystem()
 
     # Test cases
     test_cases = [
-        ("sasha.kim", "Client@123", "Client", True),
-        ("mikael.chen", "Advisor$345", "Financial Advisor", True),
-        ("alex.hayes", "Teller*567", "Teller", True),
-        ("invalid.user", "WrongPass1!", "N/A", False),
-        ("sasha.kim", "WrongPassword", "N/A", False),
+        # (username, password, expected_role, should_succeed, description)
+        ("sasha.kim", "Client@123", "Client", True, "Valid Client login"),
+        ("noor.abbasi", "Premium#789", "Premium Client", True, "Valid Premium Client login"),
+        ("mikael.chen", "Advisor$345", "Financial Advisor", True, "Valid Financial Advisor login"),
+        ("ellis.nakamura", "Planner&901", "Financial Planner", True, "Valid Financial Planner login"),
+        ("alex.hayes", "Teller*567", "Teller", True, "Valid Teller login (time-dependent)"),
+        ("invalid.user", "WrongPass1!", None, False, "Non-existent user"),
+        ("sasha.kim", "WrongPassword", None, False, "Valid user, wrong password"),
     ]
 
     print("Test Results:\n")
+    passed = 0
+    failed = 0
 
-    for username, password, expected_role, should_succeed in test_cases:
-        print(f"Testing: {username}")
+    for username, password, expected_role, should_succeed, description in test_cases:
         success, user_data = login_system.password_manager.verify_user(username, password)
 
-        if should_succeed:
-            if success and user_data['role'] == expected_role:
-                print(f"  ✓ PASS - Successfully authenticated as {expected_role}")
+        # Special handling for Teller time restrictions
+        if success and user_data and user_data['role'] == 'Teller':
+            role_enum = login_system.get_role_enum(user_data['role'])
+            time_allowed, _ = login_system.access_control.check_time_restriction(role_enum)
+            success = success and time_allowed
 
-                role_enum = login_system.get_role_enum(user_data['role'])
-                permissions = login_system.access_control.get_permissions(role_enum)
-                print(f"  Permissions: {len(permissions)} operations authorized")
-            else:
-                print(f"  ✗ FAIL - Expected success but got failure")
+        test_passed = (success == should_succeed)
+
+        if success and should_succeed and user_data:
+            # Also verify role matches
+            test_passed = test_passed and (user_data['role'] == expected_role)
+
+        status = "PASS" if test_passed else "FAIL"
+
+        if test_passed:
+            passed += 1
         else:
-            if not success:
-                print(f"  ✓ PASS - Correctly rejected invalid credentials")
-            else:
-                print(f"  ✗ FAIL - Should have rejected but authenticated")
+            failed += 1
+
+        print(f"{status} | {description}")
+        print(f"      Username: {username}")
+        print(f"      Expected: {'Success' if should_succeed else 'Failure'}")
+        print(f"      Got: {'Success' if success else 'Failure'}")
+
+        if success and user_data:
+            role_enum = login_system.get_role_enum(user_data['role'])
+            permissions = login_system.access_control.get_permissions(role_enum)
+            print(f"      Role: {user_data['role']}")
+            print(f"      Permissions: {len(permissions)} operations authorized")
         print()
 
-    print("Login system testing completed!")
+    # Test permission display for each role
+    print("Test Category: Permission Display Verification\n")
+
+    role_tests = [
+        ("sasha.kim", "Client@123", "Client", 3),
+        ("noor.abbasi", "Premium#789", "Premium Client", 5),
+        ("mikael.chen", "Advisor$345", "Financial Advisor", 4),
+        ("ellis.nakamura", "Planner&901", "Financial Planner", 5),
+    ]
+
+    for username, password, role_name, expected_perm_count in role_tests:
+        success, user_data = login_system.password_manager.verify_user(username, password)
+
+        if success:
+            role_enum = login_system.get_role_enum(user_data['role'])
+            permissions = login_system.access_control.get_permissions(role_enum)
+            actual_count = len(permissions)
+
+            test_passed = (actual_count == expected_perm_count)
+            status = "✓ PASS" if test_passed else "✗ FAIL"
+
+            if test_passed:
+                passed += 1
+            else:
+                failed += 1
+
+            print(f"{status} | {role_name} permission count")
+            print(f"      Expected: {expected_perm_count}, Got: {actual_count}")
+            print(f"      Permissions:")
+            for perm in permissions:
+                print(f"        - {perm.value}")
+        else:
+            failed += 1
+            print(f"✗ FAIL | Could not authenticate {username}")
+        print()
+
+    print(f"Summary: {passed} passed, {failed} failed out of {passed + failed} tests\n")
+
+    print("=" * 70)
+    print("Login System Components Verified:")
+    print("  ✓ User authentication via password file")
+    print("  ✓ Role-based permission retrieval")
+    print("  ✓ Time-based access control (Teller)")
+    print("  ✓ Invalid credential rejection")
+    print("  ✓ Non-existent user handling")
+    print("  ✓ Complete permission display")
+    print("=" * 70)
 
 
 def run_login_interface():
