@@ -12,6 +12,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 from Problem1 import AccessControlManager, Role, Permission
 from Problem2 import PasswordFileManager
 
+
 class LoginSystem:
     """Handles user login and displays access privileges"""
 
@@ -232,7 +233,20 @@ def test_login_system():
     if not os.path.exists("passwd.txt"):
         print("Initializing sample users for testing...")
         initialize_sample_users()
-        print()
+
+        # CRITICAL: Verify file was created and has content
+        if not os.path.exists("passwd.txt"):
+            print("ERROR: Failed to create passwd.txt!")
+            return
+
+        with open("passwd.txt", 'r') as f:
+            user_count = len(f.readlines())
+
+        if user_count == 0:
+            print("ERROR: passwd.txt is empty!")
+            return
+
+        print(f"Verified: {user_count} users created in passwd.txt\n")
 
     login_system = LoginSystem()
 
@@ -254,6 +268,14 @@ def test_login_system():
 
     for username, password, expected_role, should_succeed, description in test_cases:
         success, user_data = login_system.password_manager.verify_user(username, password)
+
+        # Debug output if authentication fails unexpectedly
+        if not success and should_succeed:
+            print(f"DEBUG: Authentication failed for {username}")
+            print(f"  Checking if user exists in passwd.txt...")
+            with open("passwd.txt", 'r') as f:
+                found = any(line.startswith(username + ":") for line in f)
+                print(f"  User found in file: {found}")
 
         # Special handling for Teller time restrictions
         if success and user_data and user_data['role'] == 'Teller':
