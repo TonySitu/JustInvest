@@ -53,17 +53,16 @@ This launches the main menu where you can:
 After initializing sample users (Option 3 in main menu), you can login with:
 
 | Username | Password | Role |
-|----------|----------|------|
-| sasha.kim | Client@123 | Client |
-| emery.blake | Client@456 | Client |
-| noor.abbasi | Premium#789 | Premium Client |
-| zuri.adebayo | Premium#012 | Premium Client |
-| mikael.chen | Advisor$345 | Financial Advisor |
-| jordan.riley | Advisor$678 | Financial Advisor |
-| ellis.nakamura | Planner&901 | Financial Planner |
-| harper.diaz | Planner&234 | Financial Planner |
-| alex.hayes | Teller*567 | Teller |
-| adair.patel | Teller*890 | Teller |
+sasha.kim / Client@123 / Client
+emery.blake / Client@456 / Client
+noor.abbasi / Premium#789 / Premium Client
+zuri.adebayo / Premium#012 / Premium Client
+mikael.chen / Advisor$345 / Financial Advisor
+jordan.riley / Advisor$678 / Financial Advisor
+ellis.nakamura / Planner&901 / Financial Planner
+harper.diaz / Planner&234 / Financial Planner
+alex.hayes / Teller*567 / Teller
+adair.patel / Teller*890 / Teller
 
 ## Password Policy Requirements
 
